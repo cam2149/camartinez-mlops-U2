@@ -5,79 +5,261 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Predicción de Estado de Salud</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center mb-6">Predicción de Estado de Salud</h1>
-        
-        <!-- Formulario -->
-        <div class="space-y-4">
-            <div>
-                <label for="ege" class="block text-sm font-medium text-gray-700">Edad</label>
-                <input type="number" id="ege" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 25" required>
-            </div>
-            <div>
-                <label for="sex" class="block text-sm font-medium text-gray-700">Sexo</label>
-                <select id="sex" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
-            </div>
-            <div>
-                <label for="arterialIndex" class="block text-sm font-medium text-gray-700">Índice Arterial</label>
-                <input type="number" id="arterialIndex" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 120" required>
-            </div>
-            <button onclick="getPrediction()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Obtener Predicción</button>
-        </div>
-        
-        <!-- Área de resultado -->
-        <div id="result" class="mt-6 p-4 rounded-md hidden"></div>
-    </div>
+<body class="bg-gray-100 min-h-screen">
+    <div id="root"></div>
+    <script type="text/jsx">
+        const PredictionForm = () => {
+            const [formData, setFormData] = React.useState({ age: '', sex: '', arterialIndex: '' });
+            const [result, setResult] = React.useState({ message: '', type: '' });
 
-    <script>
-        async function getPrediction() {
-            const age = document.getElementById('ege').value;
-            const sex = document.getElementById('sex').value;
-            const arterialIndex = document.getElementById('arterialIndex').value;
-            const resultDiv = document.getElementById('result');
+            const handleInputChange = (e) => {
+                const { id, value } = e.target;
+                setFormData(prev => ({ ...prev, [id]: value }));
+            };
 
-            // Validación básica
-            if (!ege || !sex || !arterialIndex) {
-                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
-                resultDiv.innerHTML = 'Por favor, completa todos los campos.';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
+            const getPrediction = async () => {
+                const { age, sex, arterialIndex } = formData;
 
-            if (ege < 0 || arterialIndex < 0) {
-                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
-                resultDiv.innerHTML = 'La edad y el índice arterial deben ser mayores o iguales a 0.';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                // Construir la URL del endpoint
-                const url = `http://127.0.0.1:5000/getprediction?age=${age}&sex=${sex}&arterialIndex=${arterialIndex}`;
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error('Error en la solicitud a la API');
+                // Client-side validation
+                if (!age || !sex || !arterialIndex) {
+                    setResult({ message: 'Por favor, completa todos los campos.', type: 'error' });
+                    return;
+                }
+                if (parseInt(age) < 0 || parseInt(arterialIndex) < 0) {
+                    setResult({ message: 'La edad y el índice arterial deben ser mayores o iguales a 0.', type: 'error' });
+                    return;
                 }
 
-                const data = await response.json();
-                
-                // Mostrar el resultado
-                resultDiv.className = 'mt-6 p-4 rounded-md bg-green-100 text-green-700';
-                resultDiv.innerHTML = `<strong>Estado:</strong> ${data.estado}`;
-                resultDiv.classList.remove('hidden');
-            } catch (error) {
-                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
-                resultDiv.innerHTML = `Error: ${error.message}`;
-                resultDiv.classList.remove('hidden');
-            }
-        }
+                try {
+                    const url = `http://127.0.0.1:5000/getprediction?age=${age}&sex=${sex}&arterialIndex=${arterialIndex}`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Error en la solicitud a la API');
+                    const data = await response.json();
+                    setResult({ message: `Estado: ${data.estado}`, type: 'success' });
+                } catch (error) {
+                    setResult({ message: `Error: ${error.message}`, type: 'error' });
+                }
+            };
+
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="age" className="block text-sm font-medium text-gray-700">Edad</label>
+                        <input
+                            type="number"
+                            id="age"
+                            min="0"
+                            value={formData.age}
+                            onChange={handleInputChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Ej. 25"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="sex" className="block text-sm font-medium text-gray-700">Sexo</label>
+                        <select
+                            id="sex"
+                            value={formData.sex}
+                            onChange={handleInputChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            required
+                        >
+                            <option value="" disabled>Selecciona una opción</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="arterialIndex" className="block text-sm font-medium text-gray-700">Índice Arterial</label>
+                        <input
+                            type="number"
+                            id="arterialIndex"
+                            min="0"
+                            value={formData.arterialIndex}
+                            onChange={handleInputChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Ej. 120"
+                            required
+                        />
+                    </div>
+                    <button
+                        onClick={getPrediction}
+                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        Obtener Predicción
+                    </button>
+                    {result.message && (
+                        <div className={`mt-6 p-4 rounded-md ${result.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {result.message}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const StatisticsTab = () => {
+            const [lastPredictionDate, setLastPredictionDate] = React.useState('');
+            const [predictionCounts, setPredictionCounts] = React.useState({});
+            const [lastPredictions, setLastPredictions] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [error, setError] = React.useState('');
+
+            const downloadReport = async () => {
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/getReport');
+                    if (!response.ok) throw new Error('Error al obtener el reporte');
+                    const data = await response.json();
+                    
+                    // Decode Base64 content
+                    const decodedContent = atob(data.report_base64);
+                    const blob = new Blob([decodedContent], { type: 'text/plain;charset=utf-8' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = data.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    setError('Error al descargar el reporte: ' + err.message);
+                }
+            };
+
+            React.useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        // Fetch last prediction date
+                        const dateResponse = await fetch('http://127.0.0.1:5000/last_prediction_date');
+                        if (!dateResponse.ok) throw new Error('Error al obtener la última fecha');
+                        const dateData = await dateResponse.json();
+                        if (dateData.message) {
+                            setLastPredictionDate('No hay predicciones');
+                        } else {
+                            setLastPredictionDate(dateData.last_prediction_date);
+                        }
+
+                        // Fetch prediction counts
+                        const countsResponse = await fetch('http://127.0.0.1:5000/prediction_counts');
+                        if (!countsResponse.ok) throw new Error('Error al obtener conteos');
+                        const countsData = await countsResponse.json();
+                        setPredictionCounts(countsData);
+
+                        // Fetch last 5 predictions
+                        const predictionsResponse = await fetch('http://127.0.0.1:5000/last_predictions');
+                        if (!predictionsResponse.ok) throw new Error('Error al obtener últimas predicciones');
+                        const predictionsData = await predictionsResponse.json();
+                        setLastPredictions(predictionsData);
+
+                        setLoading(false);
+                    } catch (err) {
+                        setError(err.message);
+                        setLoading(false);
+                    }
+                };
+                fetchData();
+            }, []);
+
+            if (loading) return <div className="text-center">Cargando...</div>;
+            if (error) return <div className="text-center text-red-700">Error: {error}</div>;
+
+            return (
+                <div className="space-y-6">
+                    <div className="flex justify-end">
+                        <button
+                            onClick={downloadReport}
+                            className="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            Descargar Reporte
+                        </button>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold">Fecha de la Última Predicción</h2>
+                        <p className="mt-2 text-gray-700">
+                            {lastPredictionDate === 'No hay predicciones' 
+                                ? lastPredictionDate 
+                                : new Date(lastPredictionDate).toLocaleString('es-ES')}
+                        </p>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold">Número Total de Predicciones por Categoría</h2>
+                        {predictionCounts.message ? (
+                            <p className="mt-2 text-gray-700">{predictionCounts.message}</p>
+                        ) : (
+                            <ul className="mt-2 space-y-1">
+                                {Object.entries(predictionCounts).map(([estado, count]) => (
+                                    <li key={estado} className="text-gray-700">{estado}: {count}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold">Últimas 5 Predicciones</h2>
+                        {lastPredictions.message ? (
+                            <p className="mt-2 text-gray-700">{lastPredictions.message}</p>
+                        ) : (
+                            <div className="mt-2 overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {lastPredictions.map((pred, index) => (
+                                            <tr key={index}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{pred.estado}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {new Date(pred.timestamp).toLocaleString('es-ES')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = React.useState('prediction');
+
+            return (
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+                        <h1 className="text-2xl font-bold text-center mb-6">Predicción de Estado de Salud</h1>
+                        <div className="flex border-b border-gray-200">
+                            <button
+                                className={`flex-1 py-2 px-4 text-center ${activeTab === 'prediction' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500'}`}
+                                onClick={() => setActiveTab('prediction')}
+                            >
+                                Predicción
+                            </button>
+                            <button
+                                className={`flex-1 py-2 px-4 text-center ${activeTab === 'statistics' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500'}`}
+                                onClick={() => setActiveTab('statistics')}
+                            >
+                                Estadísticas
+                            </button>
+                        </div>
+                        <div className="mt-6">
+                            {activeTab === 'prediction' ? <PredictionForm /> : <StatisticsTab />}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>

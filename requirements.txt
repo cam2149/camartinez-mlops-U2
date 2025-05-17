@@ -10,3 +10,4 @@ pandas
 python-multipart
 flask
 gunicorn
+pydantic
