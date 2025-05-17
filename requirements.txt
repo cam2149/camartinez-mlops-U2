@@ -1,0 +1,12 @@
+# requirements.txt
+
+# Versiones fijas basadas en el entorno de desarrollo/producción
+# Python verificado: 3.11.12
+
+ 
+fastapi 
+uvicorn 
+pandas
+python-multipart
+flask
+gunicorn

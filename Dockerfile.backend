@@ -1,0 +1,21 @@
+# Use Python base image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements.txt and install dependencies
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend files
+COPY model/prediction/application.py /app/prediction/application.py
+COPY model/prediction/model.csv /app/prediction/model.csv
+
+
+# Expose port 5000
+EXPOSE 5000
+
+# Run the FastAPI application with Uvicorn
+CMD ["uvicorn", "prediction.application:app", "--host", "0.0.0.0", "--port", "5000"]
+

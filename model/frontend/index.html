@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Estado de Salud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6">Predicción de Estado de Salud</h1>
+        
+        <!-- Formulario -->
+        <div class="space-y-4">
+            <div>
+                <label for="ege" class="block text-sm font-medium text-gray-700">Edad</label>
+                <input type="number" id="ege" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 25" required>
+            </div>
+            <div>
+                <label for="sex" class="block text-sm font-medium text-gray-700">Sexo</label>
+                <select id="sex" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div>
+                <label for="arterialIndex" class="block text-sm font-medium text-gray-700">Índice Arterial</label>
+                <input type="number" id="arterialIndex" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 120" required>
+            </div>
+            <button onclick="getPrediction()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Obtener Predicción</button>
+        </div>
+        
+        <!-- Área de resultado -->
+        <div id="result" class="mt-6 p-4 rounded-md hidden"></div>
+    </div>
+
+    <script>
+        async function getPrediction() {
+            const ege = document.getElementById('ege').value;
+            const sex = document.getElementById('sex').value;
+            const arterialIndex = document.getElementById('arterialIndex').value;
+            const resultDiv = document.getElementById('result');
+
+            // Validación básica
+            if (!ege || !sex || !arterialIndex) {
+                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
+                resultDiv.innerHTML = 'Por favor, completa todos los campos.';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (ege < 0 || arterialIndex < 0) {
+                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
+                resultDiv.innerHTML = 'La edad y el índice arterial deben ser mayores o iguales a 0.';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Construir la URL del endpoint
+                const url = `http://127.0.0.1:5000/getprediction?ege=${ege}&sex=${sex}&arterialIndex=${arterialIndex}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud a la API');
+                }
+
+                const data = await response.json();
+                
+                // Mostrar el resultado
+                resultDiv.className = 'mt-6 p-4 rounded-md bg-green-100 text-green-700';
+                resultDiv.innerHTML = `<strong>Estado:</strong> ${data.estado}`;
+                resultDiv.classList.remove('hidden');
+            } catch (error) {
+                resultDiv.className = 'mt-6 p-4 rounded-md bg-red-100 text-red-700';
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Use official Nginx base image
+FROM nginx:latest
+
+
+# Elimina la configuración por defecto de Nginx (opcional)
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy frontend files
+COPY model/frontend/index.html /usr/share/nginx/html/index.html
+
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 8000
+EXPOSE 8000
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
