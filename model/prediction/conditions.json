@@ -1,0 +1,107 @@
+{
+    "default_threshold": {
+        "arterial_index": 120
+    },
+    "conditions": [
+        {
+            "age_range": [20, 39],
+            "rules": [
+                {
+                    "sex": "M",
+                    "arterial_index": [162, 179],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [157, 176],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [250, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [250, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                }
+            ]
+        },
+        {
+            "age_range": [40, 59],
+            "rules": [
+                {
+                    "sex": "M",
+                    "arterial_index": [180, 199],
+                    "estado": "ENFERMEDAD AGUDA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [180, 201],
+                    "estado": "ENFERMEDAD AGUDA"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [250, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [250, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                }
+            ]
+        },
+        {
+            "age_range": [60, 69],
+            "rules": [
+                 {
+                    "sex": "M",
+                    "arterial_index": [226, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [201, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [189, 213],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [200, 225],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                }
+            ]
+        },
+        {
+            "age_range": [70, 80],
+            "rules": [
+                {
+                    "sex": "M",
+                    "arterial_index": [226, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [201, 999],
+                    "estado": "ENFERMEDAD TERMINAL"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [189, 225],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [180, 200],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                }
+            ]
+        }
+    ]
+}
