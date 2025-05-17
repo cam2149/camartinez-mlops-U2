@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Literal
 import pandas as pd
+import json
 import random
 import os
 
@@ -20,84 +21,83 @@ app.add_middleware(
        allow_methods=["GET"],
        allow_headers=["*"],
    )
-       
+
+def load_conditions(json_path: str) -> dict:
+    """Load health condition rules from a JSON file."""
+    try:
+        with open(json_path, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Archivo conditions.json no encontrado.")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail="Formato de JSON inválido en conditions.json.")
+           
 @app.get("/getprediction",
     summary="Obtener predicción de estado de salud",
     description="Devuelve un estado de salud ('NO ENFERMO', 'ENFERMEDAD LEVE', 'ENFERMEDAD AGUDA', 'ENFERMEDAD CRÓNICA') basado en la edad, sexo e índice arterial.",
     response_description="Un objeto JSON con el estado de salud predicho.",
     )
-def get_prediction(
-    age: int,  
-    sex: str, 
-    arterialIndex: int
-    ):
+def get_prediction(age: int, sex: str, arterialIndex: int) -> dict:
+    """
+    Predict health status based on input parameters and JSON conditions.
     
-     # Validar parámetros de entrada
+    Args:
+        age (int): Patient's age
+        sex (str): Patient's sex ('M' or 'F')
+        arterialIndex (int): Patient's arterial index
+    
+    Returns:
+        dict: Predicted health status
+    """
+    # Input validation
     if age < 0:
         raise HTTPException(status_code=400, detail="La edad debe ser un valor no negativo.")
     if arterialIndex < 0:
         raise HTTPException(status_code=400, detail="El índice arterial debe ser un valor no negativo.")
-    
-    # Leer el archivo CSV
-    """
-    Predice el estado de salud basado en parámetros de entrada.
-    
-    Args:
-        ege (int): Edad del paciente.
-        sex (str): Sexo del paciente (por ejemplo, 'M' o 'F').
-        arterialIndex (int): Índice arterial del paciente.
-    
-    Returns:
-        dict: Estado de salud predicho.
-    """
-    
-    cwd = os.getcwd()  # Get the current working directory (cwd)
-    files = os.listdir(cwd)  # Get all the files in that directory
-    print("Files in %r: %s" % (cwd, files))
-       
+    if sex not in ['M', 'F']:
+        raise HTTPException(status_code=400, detail="El sexo debe ser 'M' o 'F'.")
+
+    # Load CSV data
     try:
         df = pd.read_csv('/app/prediction/model.csv')
     except FileNotFoundError:
         raise HTTPException(status_code=500, detail="Archivo model.csv no encontrado.")
-    
-    # Filtrar datos según las reglas
-    if arterialIndex <= 120:
-        filtered_df = df[df['estado'] == 'NO ENFERMO']
-    elif 20 <= age <= 39:
-        if sex == 'M' and 162 <= arterialIndex <= 179:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD LEVE']
-        elif sex == 'F' and 157 <= arterialIndex <= 176:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD LEVE']
-        else:
-            filtered_df = df[df['estado'] == 'INDETERMINADO']
-    elif 40 <= age <= 59:
-        if sex == 'M' and 180 <= arterialIndex <= 199:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD AGUDA']
-        elif sex == 'F' and 180 <= arterialIndex <= 201:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD AGUDA']
-        else:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD AGUDA']
-    elif age >= 60:
-        if sex == 'M' and 189 <= arterialIndex <= 213:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD CRÓNICA']
-        elif sex == 'F' and 200 <= arterialIndex <= 225:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD CRÓNICA']
-        else:
-            filtered_df = df[df['estado'] == 'ENFERMEDAD AGUDA']
-    else:
-        filtered_df = df[df['estado'] == 'ENFERMEDAD AGUDA']
 
-    
-    
-    # Si no hay registros que coincidan, devolver un estado por defecto
+    # Load conditions from JSON
+    conditions = load_conditions('/app/prediction/conditions.json')
+
+    # Evaluate conditions
+    estado = None
+    for condition in conditions['conditions']:
+        age_range = condition['age_range']
+        if age_range[0] <= age <= age_range[1]:
+            for rule in condition['rules']:
+                if rule['sex'] == sex and rule['arterial_index'][0] <= arterialIndex <= rule['arterial_index'][1]:
+                    estado = rule['estado']
+                    break
+            if estado:
+                break
+
+    # Default case if no specific condition matches
+    if not estado:
+        if arterialIndex <= conditions['default_threshold']['arterial_index']:
+            estado = 'NO ENFERMO'
+        else:
+            estado = 'ENFERMEDAD AGUDA'
+
+    # Filter dataframe based on predicted status
+    filtered_df = df[df['estado'] == estado]
+
+    # If no matching records, return the predicted status
     if filtered_df.empty:
-        return {"estado": "ENFERMEDAD AGUDA"}
-    
-    # Seleccionar aleatoriamente un estado de los registros filtrados
+        return {"estado": estado}
+
+    # Randomly select a status from filtered records
     estado = random.choice(filtered_df['estado'].tolist())
-    
     return {"estado": estado}
 
+
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="localhost", port=5000)
