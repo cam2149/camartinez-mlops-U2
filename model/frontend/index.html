@@ -37,7 +37,7 @@
 
     <script>
         async function getPrediction() {
-            const ege = document.getElementById('ege').value;
+            const age = document.getElementById('ege').value;
             const sex = document.getElementById('sex').value;
             const arterialIndex = document.getElementById('arterialIndex').value;
             const resultDiv = document.getElementById('result');
@@ -59,7 +59,7 @@
 
             try {
                 // Construir la URL del endpoint
-                const url = `http://127.0.0.1:5000/getprediction?ege=${ege}&sex=${sex}&arterialIndex=${arterialIndex}`;
+                const url = `http://127.0.0.1:5000/getprediction?age=${age}&sex=${sex}&arterialIndex=${arterialIndex}`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {

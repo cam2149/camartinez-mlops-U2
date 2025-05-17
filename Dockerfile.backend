@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend files
 COPY model/prediction/application.py /app/prediction/application.py
+COPY model/prediction/conditions.json /app/prediction/conditions.json
 COPY model/prediction/model.csv /app/prediction/model.csv
 
 
