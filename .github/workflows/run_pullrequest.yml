@@ -46,35 +46,36 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d -p 5000:5000 --name backend-container backend-image
+          docker network create backend-network || true
+          docker run -d --net backend-network -p 5000:5000 --name backend-container backend-image
 
       - name: Extract container IP address
-        id: get-ip
         run: |
-          CONTAINER_IP=$(docker inspect backend-container | grep -oP '"IPAddress": "\K[0-9.]+(?=")' | head -1)
+          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' backend-container)
           if [ -z "$CONTAINER_IP" ]; then
-            echo "Failed to extract container IP address"
-            docker logs backend-container
-            exit 1
+              echo "Failed to extract container IP address"
+              docker logs backend-container
+              exit 1
           fi
           echo "Container IP: $CONTAINER_IP"
           echo "container_ip=$CONTAINER_IP" >> $GITHUB_OUTPUT
-          echo "Checking backend service health at http://$CONTAINER_IP:5000/health..."
 
-      - name: Debug container network
-        if: failure()
+      - name: Wait for backend service
         run: |
-          docker inspect backend-container | grep -i ipaddress
-          docker ps -a
-          docker logs backend-container
-
-      - name: Upload container logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-container-logs
-          path: backend-container.log
-          retention-days: 7
+          echo "Waiting for backend service to start..."
+          for i in {1..10}; do
+              if curl -s http://"$CONTAINER_IP":5000/health; then
+                  echo "Backend service is up!"
+                  break
+              fi
+              echo "Retrying in 5 seconds..."
+              sleep 5
+          done
+          if ! curl -s http://"$CONTAINER_IP":5000/health; then
+              echo "Backend service failed to start"
+              docker logs backend-container
+              exit 1
+          fi
 
       - name: Run unit tests
         run: |
