@@ -1,3 +1,4 @@
+
 name: Pull Request CI/CD
 
 on:
@@ -39,14 +40,18 @@ jobs:
               body: 'CI/CD en acción. Ejecutando tareas …'
             })
 
-      - name: Build and start services with Docker Compose
+      - name: Build Docker image
         run: |
-          docker-compose -f docker-compose.yml up --build -d
+          docker build -f Dockerfile.backend -t backend-image .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5000:5000 --name backend-container backend-image
 
       - name: Extract container IP address
         id: get-ip
         run: |
-          CONTAINER_IP=$(docker inspect backend-container | grep -oP '"IPAddress": "\K[0-9.]+(?=")')
+          CONTAINER_IP=$(docker inspect backend-container | grep -oP '"IPAddress": "\K[0-9.]+(?=")' | head -1)
           if [ -z "$CONTAINER_IP" ]; then
             echo "Failed to extract container IP address"
             docker logs backend-container
@@ -58,13 +63,12 @@ jobs:
       - name: Wait for backend service to be healthy
         run: |
           check_backend_health() {
-            local ip="$CONTAINER_IP"
+            local ip=$CONTAINER_IP
             local max_attempts=30
             local attempt=1
             local base_delay=2
             echo "Checking backend service health at http://$ip:5000/health..."
             while [ $attempt -le $max_attempts ]; do
-              # Run curl inside the container, but use the container's IP
               if docker exec backend-container curl -s -f "http://$ip:5000/health" | grep -q '"status":"ok"'; then
                 echo "Backend service is up!"
                 return 0
@@ -78,30 +82,6 @@ jobs:
             return 1
           }
           check_backend_health "${{ steps.get-ip.outputs.container_ip }}" || { echo "Health check failed"; exit 1; }
-
-      # Alternative: Health check from host (uncomment to use)
-      # - name: Wait for backend service to be healthy (host)
-      #   run: |
-      #     check_backend_health_host() {
-      #       local ip="$1"
-      #       local max_attempts=30
-      #       local attempt=1
-      #       local base_delay=2
-      #       echo "Checking backend service health at http://$ip:5000/health from host..."
-      #       while [ $attempt -le $max_attempts ]; do
-      #         if curl -s -f "http://$ip:5000/health" | grep -q '"status":"ok"'; then
-      #           echo "Backend service is up!"
-      #           return 0
-      #         fi
-      #         echo "Waiting... ($attempt/$max_attempts)"
-      #         sleep $((base_delay * attempt / 10 + 1))
-      #         attempt=$((attempt + 1))
-      #       done
-      #       echo "Backend service failed to start within $((max_attempts * 3)) seconds."
-      #       docker logs backend-container > backend-container.log
-      #       return 1
-      #     }
-      #     check_backend_health_host "${{ steps.get-ip.outputs.container_ip }}" || { echo "Health check failed"; exit 1; }
 
       - name: Debug container network
         if: failure()
@@ -122,10 +102,11 @@ jobs:
         run: |
           docker exec backend-container python /app/prediction/test.py
 
-      - name: Stop and remove services
+      - name: Stop and remove container
         if: always()
         run: |
-          docker-compose -f docker-compose.yml down --remove-orphans
+          docker stop backend-container || true
+          docker rm backend-container || true
           docker image prune -f
 
       - name: Comment PR - CI/CD Result
