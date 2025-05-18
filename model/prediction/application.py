@@ -41,6 +41,9 @@ class LastPredictionResponse(BaseModel):
     last_prediction_date: str
     estado: str
     
+class HealthResponse(BaseModel):
+    status: str
+    
 def load_conditions(json_path: str) -> dict:
     """Load health condition rules from a JSON file."""
     try:
@@ -142,6 +145,16 @@ def get_prediction(age: int, sex: str, arterialIndex: int) -> PredictionResponse
     save_prediction(final_estado, random.randint(1, 3))
 
     return PredictionResponse(estado=final_estado, timestamp=datetime.now(pytz.UTC).isoformat())
+
+@app.get("/health",
+    summary="Verificar el estado de la API",
+    description="Devuelve el estado de salud de la API.",
+    response_description="Un objeto JSON con el estado 'ok' si la API está funcionando.",
+    response_model=HealthResponse
+)
+async def health_check() -> HealthResponse:
+    """Return the health status of the API."""
+    return HealthResponse(status="ok")
 
 @app.get("/prediction_counts",
     summary="Obtener conteo de predicciones por categoría",

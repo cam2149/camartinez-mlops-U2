@@ -163,6 +163,16 @@
                 },
                 {
                     "sex": "M",
+                    "arterial_index": [131, 200],
+                    "estado": "ENFERMEDAD AGUDA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [130, 190],
+                    "estado": "ENFERMEDAD AGUDA"
+                },
+                {
+                    "sex": "M",
                     "arterial_index": [226, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 },
