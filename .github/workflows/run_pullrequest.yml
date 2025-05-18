@@ -61,30 +61,6 @@ jobs:
           echo "container_ip=$CONTAINER_IP" >> $GITHUB_OUTPUT
           echo "Checking backend service health at http://$CONTAINER_IP:5000/health..."
 
-      - name: Wait for backend service to be healthy
-        run: |
-          check_backend_health() {
-            CONTAINER_IP=$(docker inspect backend-container | grep -oP '"IPAddress": "\K[0-9.]+(?=")' | head -1)
-            local ip="$CONTAINER_IP"
-            local max_attempts=30
-            local attempt=1
-            local base_delay=2
-            echo "Checking backend service health at http://$ip:5000/health..."
-            while [ $attempt -le $max_attempts ]; do
-              if docker exec backend-container curl -s -f "http://$ip:5000/health" | grep -q '"status":"ok"'; then
-                echo "Backend service is up!"
-                return 0
-              fi
-              echo "Waiting... ($attempt/$max_attempts)"
-              sleep $((base_delay * attempt / 10 + 1))
-              attempt=$((attempt + 1))
-            done
-            echo "Backend service failed to start within $((max_attempts * 3)) seconds."
-            docker logs backend-container > backend-container.log
-            return 1
-          }
-          check_backend_health "${{ steps.get-ip.outputs.container_ip }}" || { echo "Health check failed"; exit 1; }
-
       - name: Debug container network
         if: failure()
         run: |
