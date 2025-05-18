@@ -125,6 +125,16 @@
                     "sex": "F",
                     "arterial_index": [0, 110],
                     "estado": "NO ENFERMO"
+                },
+                 {
+                    "sex": "M",
+                    "arterial_index": [121, 161],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [111, 156],
+                    "estado": "ENFERMEDAD LEVE"
                 },{
                     "sex": "M",
                     "arterial_index": [226, 999],

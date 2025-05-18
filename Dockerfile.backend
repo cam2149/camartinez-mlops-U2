@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY model/prediction/application.py /app/prediction/application.py
 COPY model/prediction/conditions.json /app/prediction/conditions.json
 COPY model/prediction/model.csv /app/prediction/model.csv
-COPY model/test.py /app/prediction/test.py
+COPY tests/unit/test_predictions.py /app/prediction/test.py
 
 # Expose port 5000
 EXPOSE 5000
