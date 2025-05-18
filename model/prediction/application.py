@@ -41,6 +41,9 @@ class LastPredictionResponse(BaseModel):
     last_prediction_date: str
     estado: str
     
+class HealthResponse(BaseModel):
+    status: str
+    
 def load_conditions(json_path: str) -> dict:
     """Load health condition rules from a JSON file."""
     try:
