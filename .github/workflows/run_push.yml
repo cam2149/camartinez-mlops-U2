@@ -2,13 +2,14 @@ name: Commit CI/CD
 on:
   push:
     branches:
-      - main
+      - Feature/añadir-github-actions
 
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
 
     steps:
       - name: Checkout code
