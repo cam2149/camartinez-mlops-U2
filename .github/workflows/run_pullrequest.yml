@@ -39,6 +39,27 @@ jobs:
         run: |
           docker run -d -p 5000:5000 --name backend-container backend-image
 
+      - name: Wait for backend service to be healthy
+        run: |
+          echo "Waiting for backend service to be available..."
+          for i in {1..30}; do
+            if docker exec backend-container curl -s http://localhost:5000/health >/dev/null; then
+              echo "Backend service is up!"
+              exit 0
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          echo "Backend service failed to start within 60 seconds."
+          docker logs backend-container
+          exit 1
+
+      - name: Debug container network
+        run: |
+          docker inspect backend-container | grep -i ipaddress
+          docker ps -a
+          docker logs backend-container
+
       - name: Run unit tests
         run: |
           docker exec backend-container python /app/prediction/test.py
