@@ -63,7 +63,7 @@ jobs:
       - name: Wait for backend service to be healthy
         run: |
           check_backend_health() {
-            local ip=$CONTAINER_IP
+            local ip="$CONTAINER_IP"
             local max_attempts=30
             local attempt=1
             local base_delay=2
