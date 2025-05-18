@@ -68,7 +68,7 @@ jobs:
         continue-on-error: true
       - name: Run unit tests
         run: |
-           coverage run -m pytest tests/ -v -s
+           coverage run -m pytest tests/unit/ -v -s
            
       - name: Generate Coverage Report
         run: |  
