@@ -41,14 +41,6 @@ jobs:
         run: |  
           coverage run -m pytest tests/unit/ -v -s
           coverage report -m
-
-      - name: Stop and remove container
-        if: always()
-        run: |
-          docker stop backend-container || true
-          docker rm backend-container || true
-          docker image prune -f
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
