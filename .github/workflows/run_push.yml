@@ -1,12 +1,14 @@
 name: Commit CI/CD
-
 on:
   push:
     branches:
       - main
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +18,56 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and run tests with Docker Compose
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Install dependencies
         run: |
-          docker-compose up --build -d
-          docker-compose exec -T app python model/test.py
-          docker-compose down
+          python -m pip install --upgrade pip
+          pip install coverage pytest
+          pip install -r requirements.txt
+          
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile.backend -t backend-image .
+
+      - name: Run Docker container
+        run: |
+          docker network create backend-network || true
+          docker run -d --net backend-network -p 5000:5000 --name backend-container backend-image
+
+      - name: Extract container IP address
+        run: |
+          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' backend-container)
+          if [ -z "$CONTAINER_IP" ]; then
+              echo "Failed to extract container IP address"
+              docker logs backend-container
+              exit 1
+          fi
+          echo "Container IP: $CONTAINER_IP"
+          echo "container_ip=$CONTAINER_IP" >> $GITHUB_OUTPUT
+
+        continue-on-error: true
+      - name: Run unit tests
+        run: |
+           pytest tests/unit/ --collect-only -v
+           
+      - name: Generate Coverage Report
+        run: |  
+          coverage run -m pytest tests/unit/ -v -s
+          coverage report -m
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop backend-container || true
+          docker rm backend-container || true
+          docker image prune -f
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
