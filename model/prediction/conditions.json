@@ -118,6 +118,15 @@
             "rules": [
                  {
                     "sex": "M",
+                    "arterial_index": [0, 120],
+                    "estado": "NO ENFERMO"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [0, 110],
+                    "estado": "NO ENFERMO"
+                },{
+                    "sex": "M",
                     "arterial_index": [226, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 },
