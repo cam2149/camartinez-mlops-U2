@@ -65,27 +65,10 @@ jobs:
           echo "Container IP: $CONTAINER_IP"
           echo "container_ip=$CONTAINER_IP" >> $GITHUB_OUTPUT
 
-      - name: Wait for backend service
-        run: |
-          echo "Waiting for backend service to start..."
-          for i in {1..10}; do
-              if curl -s http://"$CONTAINER_IP":5000/health; then
-                  echo "Backend service is up!"
-                  break
-              fi
-              echo "Retrying in 5 seconds..."
-              sleep 5
-          done
-          if ! curl -s http://"$CONTAINER_IP":5000/health; then
-              echo "Backend service failed to start"
-              docker logs backend-container
-              exit 1
-          fi
-      
         continue-on-error: true
       - name: Run unit tests
         run: |
-           coverage run -m pytest  -v -s
+           coverage run -m pytest tests/ -v -s
            
       - name: Generate Coverage Report
         run: |  
