@@ -36,6 +36,11 @@ class ReportResponse(BaseModel):
     report_base64: str
     filename: str
 
+# Define response model
+class LastPredictionResponse(BaseModel):
+    last_prediction_date: str
+    estado: str
+    
 def load_conditions(json_path: str) -> dict:
     """Load health condition rules from a JSON file."""
     try:
@@ -258,6 +263,34 @@ def get_report() -> ReportResponse:
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al generar el reporte: {str(e)}")
+
+@app.get("/last_prediction",
+    summary="Obtener la última predicción",
+    description="Devuelve la fecha, hora y estado de la última predicción realizada.",
+    response_description="Un objeto JSON con la fecha, hora y estado de la última predicción.",
+    response_model=LastPredictionResponse
+)
+def get_last_prediction() -> Dict[str, str]:
+    """Return the date, time, and state of the last prediction made."""
+    all_predictions = []
+    for i in range(1, 4):
+        file_path = f'/app/prediction/predictions_{i}.json'
+        try:
+            with open(file_path, 'r') as f:
+                predictions = json.load(f)
+                all_predictions.extend(predictions)
+        except (FileNotFoundError, json.JSONDecodeError):
+            continue
+    
+    if not all_predictions:
+        raise HTTPException(status_code=404, detail="No se han realizado predicciones.")
+    
+    # Find the most recent prediction
+    latest_prediction = max(all_predictions, key=lambda x: x['timestamp'])
+    return {
+        "last_prediction_date": latest_prediction['timestamp'],
+        "estado": latest_prediction['estado']
+    }
 
 if __name__ == "__main__":
     import uvicorn
