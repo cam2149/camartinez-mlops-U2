@@ -6,24 +6,54 @@
         {
             "age_range": [20, 39],
             "rules": [
+                 {
+                    "sex": "M",
+                    "arterial_index": [0, 120],
+                    "estado": "NO ENFERMO"
+                },
                 {
+                    "sex": "F",
+                    "arterial_index": [0, 110],
+                    "estado": "NO ENFERMO"
+                },
+                 {
+                    "sex": "M",
+                    "arterial_index": [121, 161],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [111, 156],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                 {
                     "sex": "M",
                     "arterial_index": [162, 179],
-                    "estado": "ENFERMEDAD LEVE"
+                    "estado": "ENFERMEDAD AGUDA"
                 },
                 {
                     "sex": "F",
                     "arterial_index": [157, 176],
-                    "estado": "ENFERMEDAD LEVE"
+                    "estado": "ENFERMEDAD AGUDA"
+                },
+                 {
+                    "sex": "M",
+                    "arterial_index": [180, 220],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [177, 200],
+                    "estado": "ENFERMEDAD CRÓNICA"
                 },
                 {
                     "sex": "M",
-                    "arterial_index": [250, 999],
+                    "arterial_index": [201, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 },
                 {
                     "sex": "F",
-                    "arterial_index": [250, 999],
+                    "arterial_index": [220, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 }
             ]
@@ -33,22 +63,52 @@
             "rules": [
                 {
                     "sex": "M",
-                    "arterial_index": [180, 199],
+                    "arterial_index": [110, 120],
+                    "estado": "NO ENFERMO"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [100, 120],
+                    "estado": "NO ENFERMO"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [121, 130],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [121, 130],
+                    "estado": "ENFERMEDAD LEVE"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [131, 200],
                     "estado": "ENFERMEDAD AGUDA"
                 },
                 {
                     "sex": "F",
-                    "arterial_index": [180, 201],
+                    "arterial_index": [130, 190],
                     "estado": "ENFERMEDAD AGUDA"
                 },
                 {
                     "sex": "M",
-                    "arterial_index": [250, 999],
+                    "arterial_index": [201, 300],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                },
+                {
+                    "sex": "F",
+                    "arterial_index": [191, 250],
+                    "estado": "ENFERMEDAD CRÓNICA"
+                },
+                {
+                    "sex": "M",
+                    "arterial_index": [301, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 },
                 {
                     "sex": "F",
-                    "arterial_index": [250, 999],
+                    "arterial_index": [251, 999],
                     "estado": "ENFERMEDAD TERMINAL"
                 }
             ]
