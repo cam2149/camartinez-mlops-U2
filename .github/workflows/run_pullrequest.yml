@@ -74,6 +74,7 @@ jobs:
            
       - name: Generate Coverage Report
         run: |  
+          coverage run -m pytest tests/unit/ -v -s
           coverage report -m
 
       - name: Stop and remove container
