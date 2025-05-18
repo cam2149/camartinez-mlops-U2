@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write  # Grant write permissions to interact with pull requests
+  pull-requests: write
 
 jobs:
   test:
@@ -31,12 +31,23 @@ jobs:
               body: 'CI/CD en acción. Ejecutando tareas …'
             })
 
-      - name: Build and run tests with Docker Compose
+      - name: Build Docker image
         run: |
           docker build -f Dockerfile.backend -t backend-image .
-          docker run -d -p 5000:5000 --name backend-container backend-image exec -T app python model/test.py
-          docker stop backend-container
-          docker rm backend-container
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5000:5000 --name backend-container backend-image
+
+      - name: Run unit tests
+        run: |
+          docker exec backend-container python /app/prediction/test.py
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop backend-container || true
+          docker rm backend-container || true
 
       - name: Comment PR - CI/CD Success
         if: success()
