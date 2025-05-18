@@ -59,10 +59,12 @@ jobs:
           fi
           echo "Container IP: $CONTAINER_IP"
           echo "container_ip=$CONTAINER_IP" >> $GITHUB_OUTPUT
+          echo "Checking backend service health at http://$CONTAINER_IP:5000/health..."
 
       - name: Wait for backend service to be healthy
         run: |
           check_backend_health() {
+            CONTAINER_IP=$(docker inspect backend-container | grep -oP '"IPAddress": "\K[0-9.]+(?=")' | head -1)
             local ip="$CONTAINER_IP"
             local max_attempts=30
             local attempt=1
