@@ -33,9 +33,10 @@ jobs:
 
       - name: Build and run tests with Docker Compose
         run: |
-          docker-compose up --build -d
-          docker-compose exec -T app python model/test.py
-          docker-compose down
+          docker build -f Dockerfile.backend -t backend-image .
+          docker run -d -p 5000:5000 --name backend-container backend-image exec -T app python model/test.py
+          docker stop backend-container
+          docker rm backend-container
 
       - name: Comment PR - CI/CD Success
         if: success()
