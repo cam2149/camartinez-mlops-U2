@@ -143,6 +143,16 @@ def get_prediction(age: int, sex: str, arterialIndex: int) -> PredictionResponse
 
     return PredictionResponse(estado=final_estado, timestamp=datetime.now(pytz.UTC).isoformat())
 
+@app.get("/health",
+    summary="Verificar el estado de la API",
+    description="Devuelve el estado de salud de la API.",
+    response_description="Un objeto JSON con el estado 'ok' si la API está funcionando.",
+    response_model=HealthResponse
+)
+async def health_check() -> HealthResponse:
+    """Return the health status of the API."""
+    return HealthResponse(status="ok")
+
 @app.get("/prediction_counts",
     summary="Obtener conteo de predicciones por categoría",
     description="Devuelve el número total de predicciones realizadas para cada categoría de estado de salud.",
