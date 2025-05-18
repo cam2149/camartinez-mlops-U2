@@ -2,7 +2,7 @@ name: Commit CI/CD
 on:
   push:
     branches:
-      - Feature/añadir-github-actions
+      - main
 permissions:
       packages: write
       contents: read
