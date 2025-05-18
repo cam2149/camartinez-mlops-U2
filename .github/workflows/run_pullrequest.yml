@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write  # Grant write permissions to interact with pull requests
+
 jobs:
   test:
     runs-on: ubuntu-latest
