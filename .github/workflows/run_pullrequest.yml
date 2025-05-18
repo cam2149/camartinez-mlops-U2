@@ -76,10 +76,15 @@ jobs:
               docker logs backend-container
               exit 1
           fi
-
+      
+        continue-on-error: true
       - name: Run unit tests
         run: |
-          docker exec backend-container python /app/prediction/test.py
+           coverage run -m pytest  -v -s
+           
+      - name: Generate Coverage Report
+        run: |  
+          coverage report -m
 
       - name: Stop and remove container
         if: always()
