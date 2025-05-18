@@ -47,6 +47,13 @@ jobs:
         run: |
           docker run -d -p 5000:5000 --name backend-container backend-image
 
+      - name: Debug container network
+        if: success()
+        run: |
+          docker inspect backend-container | grep -i ipaddress
+          docker ps -a
+          docker logs backend-container
+
       - name: Wait for backend service to be healthy
         run: |
           check_backend_health() {
@@ -68,13 +75,6 @@ jobs:
             return 1
           }
           check_backend_health || { echo "Health check failed"; exit 1; }
-
-      - name: Debug container network
-        if: failure()
-        run: |
-          docker inspect backend-container | grep -i ipaddress
-          docker ps -a
-          docker logs backend-container
 
       - name: Upload container logs on failure
         if: failure()
