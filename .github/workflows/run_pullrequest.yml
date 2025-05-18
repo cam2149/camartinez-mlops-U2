@@ -39,9 +39,13 @@ jobs:
               body: 'CI/CD en acción. Ejecutando tareas …'
             })
 
-      - name: Build and start services with Docker Compose
+      - name: Build Docker image
         run: |
-          docker-compose -f docker-compose.yml up --build -d
+          docker build -f Dockerfile.backend -t backend-image .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5000:5000 --name backend-container backend-image
 
       - name: Wait for backend service to be healthy
         run: |
