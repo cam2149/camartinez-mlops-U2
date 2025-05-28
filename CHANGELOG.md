@@ -7,15 +7,16 @@
 ### Versión 1.0 (MLOPs)
 - Implementación inicial del pipeline MLOps.
 - **Entrada de Datos**: Integración de fuentes de datos (Registros de Archivos, Fuente de Datos Pública/Privada) con Esquema y Almacenamiento de Datos utilizando BlobStorage y Azure Synapse Analytics DatLake.
-- **Entrenamiento Offline**: Introducción de EDA (unión de conjuntos de datos) y extracciones/agregaciones de características PCA utilizando pandas, NumPy, Jupyter y Learn.
 - **Iteraciones del Modelo**: Incluyó entrenamiento de modelos, optimización y experimentación con PyCaret y GitHub GitHub Actions.
+- **Entrenamiento Offline**: Introducción de EDA (unión de conjuntos de datos) y extracciones/agregaciones de características PCA utilizando pandas, NumPy, Jupyter y Learn.
 - **Selección y Evaluación del Modelo**: Agregó comparación entre modelos usando mlflow y matpllib, selección del mejor modelo según requisitos, y evaluación del modelo seleccionado con métricas de rendimiento y tableros.
 - **Despliegue del Modelo**: Serialización del modelo (pickle, protobuf) y despliegue en clúster multinodo usando Azure Databricks y Spark.
 - **Predicciones del Modelo**: Gestión de información de pacientes, realización de predicciones y guardado de predicciones en Azure Blob Storage.
 - **Monitoreo**: Implementación de monitoreo de modelos con verificaciones de calidad de datos y degradación del modelo usando Jupyter, Azure Policy y Azure Monitor.
 
 ### Versión 2.0 (MLOPsv2)
-- **Entrada de Datos**: Mejorada con conectores API y verificación de deriva de datos usando Dipper.
+- **Entrada de Datos**: Mejorada con conectores API y verificación de deriva de datos usando API conectors.
+- **Esquema y Almacenamiento de Datos**: Mejorada configuración inicial con BlobStorage y Azure Synapse Analytics.
 - **Pipeline de Ingeniería de Características**: Agregó limpieza de datos, selección de características PCA y almacén de características usando pandas, Featuretools y Feast.
 - **Análisis de Datos**: Integración de validación y preparación de datos.
 - **Iteraciones del Modelo**: Expandido con experimentos orquestados usando mlflow.
@@ -52,7 +53,7 @@
 
 ### Versión 2.0 (MLOPsv2)
 - **Caso de Estudio**: Ampliado para enfatizar el desafío de la escasez de datos para enfermedades raras y la necesidad de modelos predictivos innovadores.
-- **Entrada de Datos**: Mejorado con conectores API para integración de datos externos e introdujo Dipper para verificar deriva de datos.
+- **Entrada de Datos**: Mejorado con conectores API para integración de datos externos.
 - **Pipeline de Ingeniería de Características**: Agregó limpieza de datos, PCA, selección de características y un Feature Store usando Featuretools y Feast, junto con Azure Synapse Analytics y Databricks.
 - **Iteraciones del Modelo**: Introdujo experimentos orquestados con pasos automatizados de Validación de Datos, Preparación, Entrenamiento, Evaluación y Validación usando tecnologías de Azure y PyCaret.
 - **Selección y Evaluación de Modelos**: Mejoró la comparación con métricas detalladas y análisis de complejidad, guardó parámetros/artefactos del modelo e integró Azure Machine Learning para registro de modelos.
